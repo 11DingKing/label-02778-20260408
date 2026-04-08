@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123}
+      MYSQL_DATABASE: talent_db
+      MYSQL_USER: talent
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-talent123}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --init-connect='SET NAMES utf8mb4'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root123}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: mysql://talent:${MYSQL_PASSWORD:-talent123}@db:3306/talent_db?charset=utf8mb4
+      # ⚠️ 生产环境安全提醒：
+      # 1. JWT_SECRET 必须替换为高强度随机密钥（建议 64 字符以上），切勿使用此示例值
+      # 2. 建议通过 Docker secrets 或 .env 文件注入敏感配置，不要在 docker-compose.yml 中明文存储
+      # 3. 数据库密码同理，生产环境应使用强密码并通过安全渠道管理
+      # 4. CORS_ORIGIN 生产环境应设置为实际域名，如 CORS_ORIGIN=https://example.com
+      JWT_SECRET: ${JWT_SECRET:-CHANGE_ME_USE_64_CHAR_RANDOM_SECRET_FOR_PRODUCTION_DEPLOYMENT_NOW}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8081,http://localhost:8082}
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8080
+      RUST_LOG: info
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/app/uploads
+    restart: unless-stopped
+
+  frontend-user:
+    build: ./frontend-user
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  frontend-admin:
+    build: ./frontend-admin
+    ports:
+      - "8082:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  uploads_data:

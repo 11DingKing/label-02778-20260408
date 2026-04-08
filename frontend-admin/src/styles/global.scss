@@ -1,0 +1,160 @@
+:root {
+  --primary: #2563EB;
+  --primary-light: #3B82F6;
+  --primary-lighter: #DBEAFE;
+  --primary-dark: #1D4ED8;
+  --success: #10B981;
+  --success-light: #D1FAE5;
+  --warning: #F59E0B;
+  --warning-light: #FEF3C7;
+  --danger: #EF4444;
+  --danger-light: #FEE2E2;
+  --bg: #F0F2F5;
+  --card-bg: #FFFFFF;
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #9CA3AF;
+  --border: #E5E7EB;
+  --border-light: #F3F4F6;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.fade-slide-enter-from { opacity: 0; transform: translateY(10px); }
+.fade-slide-leave-to { opacity: 0; transform: translateY(-6px); }
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  transition: var(--transition);
+
+  &:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+
+  .stat-value { font-size: 32px; font-weight: 800; color: var(--primary); letter-spacing: -1px; }
+  .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+}
+
+/* ========== Element Plus 覆盖 ========== */
+.el-button { border-radius: var(--radius-sm); font-weight: 500; transition: var(--transition); }
+.el-input__wrapper { border-radius: var(--radius-sm); }
+
+.el-card {
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.el-dialog {
+  border-radius: var(--radius) !important;
+  .el-dialog__header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border-light); margin-right: 0; }
+  .el-dialog__title { font-weight: 600; font-size: 17px; }
+  .el-dialog__body { padding: 24px; }
+  .el-dialog__footer { padding: 16px 24px 20px; border-top: 1px solid var(--border-light); }
+}
+
+.el-message-box {
+  border-radius: var(--radius) !important;
+  padding: 24px;
+  .el-message-box__title { font-weight: 600; }
+  .el-message-box__btns .el-button { border-radius: var(--radius-sm); }
+}
+
+.el-table {
+  --el-table-border-color: var(--border-light);
+  --el-table-header-bg-color: #F8FAFC;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+
+  th.el-table__cell {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .el-table__empty-text {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 80px;
+  }
+}
+
+.el-pagination {
+  --el-pagination-hover-color: var(--primary);
+  .el-pagination__total { font-size: 13px; color: var(--text-secondary); }
+}
+
+.el-tag { border-radius: 20px; font-weight: 500; }
+
+.el-message {
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border: none !important;
+}
+
+/* ========== 操作列文字按钮 ========== */
+.action-text {
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0 6px;
+  background: none;
+  border: none;
+  font-weight: 500;
+  transition: color 0.2s;
+
+  &:hover { color: var(--primary-dark); }
+  &.danger { color: var(--danger); &:hover { color: #DC2626; } }
+  &.success { color: var(--success); &:hover { color: #059669; } }
+
+  & + .action-text {
+    margin-left: 4px;
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 1px;
+      height: 12px;
+      background: var(--border);
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+  }
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; &:hover { background: #9CA3AF; } }

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人才网 API 接口文档</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f7fa;color:#1f2937;line-height:1.6}
+.container{max-width:1060px;margin:0 auto;padding:24px 16px}
+h1{font-size:24px;font-weight:700;margin-bottom:6px;color:#111827}
+.subtitle{color:#6b7280;font-size:14px;margin-bottom:28px}
+.section{background:#fff;border-radius:12px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden}
+.section-header{padding:16px 20px;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none;border-bottom:1px solid #f0f0f0}
+.section-header:hover{background:#fafbfc}
+.badge{font-size:11px;background:#e0e7ff;color:#4338ca;padding:2px 8px;border-radius:10px;font-weight:500}
+.section-body{padding:0}
+.api-item{border-bottom:1px solid #f0f0f0}
+.api-item:last-child{border-bottom:none}
+.api-row{display:grid;grid-template-columns:80px 1fr auto;gap:0;padding:12px 20px;font-size:14px;align-items:center;cursor:pointer;transition:.15s}
+.api-row:hover{background:#fafbfc}
+.method{font-size:11px;font-weight:700;padding:3px 0;text-align:center;border-radius:4px;letter-spacing:.5px}
+.method.get{color:#059669;background:#ecfdf5}
+.method.post{color:#2563eb;background:#eff6ff}
+.method.put{color:#d97706;background:#fffbeb}
+.method.delete{color:#dc2626;background:#fef2f2}
+.api-info{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.api-path{font-family:"SF Mono",Menlo,monospace;font-size:13px;color:#374151}
+.api-desc{color:#9ca3af;font-size:13px}
+.auth-tag{font-size:10px;background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:8px;white-space:nowrap}
+.chevron{color:#9ca3af;font-size:11px;transition:.2s}
+.api-item.open .chevron{transform:rotate(90deg)}
+.detail{display:none;padding:4px 20px 16px 100px;font-size:13px}
+.api-item.open .detail{display:block}
+.dt{font-size:12px;color:#6b7280;font-weight:600;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.5px}
+table.p{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px}
+table.p th{text-align:left;padding:5px 8px;background:#f8fafc;color:#6b7280;font-weight:600;border-bottom:1px solid #e5e7eb}
+table.p td{padding:5px 8px;border-bottom:1px solid #f0f0f0}
+.req{color:#dc2626}.opt{color:#9ca3af}
+pre.cb{background:#1e293b;color:#e2e8f0;padding:10px 14px;border-radius:8px;font-size:12px;overflow-x:auto;line-height:1.5;margin:4px 0}
+.nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.nav a{font-size:13px;color:#4b5563;text-decoration:none;padding:4px 12px;border-radius:6px;background:#fff;border:1px solid #e5e7eb;transition:.2s}
+.nav a:hover{border-color:#2563eb;color:#2563eb}
+.info-box{background:#fff;border-radius:12px;padding:16px 20px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);font-size:13px;color:#6b7280}
+.info-box code{background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:12px;color:#374151}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🌐 人才网 API 接口文档</h1>
+<p class="subtitle">Rust Actix-web · /api · JWT Bearer · 点击接口展开详情</p>
+
+<div class="info-box">
+  <strong>认证：</strong>请求头 <code>Authorization: Bearer &lt;token&gt;</code>，通过 <code>POST /api/auth/login</code> 获取。<br>
+  <strong>响应格式：</strong><code>{"code":0,"message":"success","data":...}</code>，错误时 code≠0。<br>
+  <strong>分页：</strong>参数 <code>page</code>(默认1) <code>size</code>(默认10,最大50) <code>keyword</code>(搜索)；响应 <code>{"list":[...],"total":N,"page":1,"size":10}</code><br>
+  🔒 = 需登录 · 标注角色 = 需对应权限
+</div>
+
+<nav class="nav">
+  <a href="#auth">认证</a><a href="#seeker">求职者</a><a href="#enterprise">企业</a>
+  <a href="#jobs">招聘</a><a href="#chat">聊天</a><a href="#jianghu">江湖说</a>
+  <a href="#market">好市场</a><a href="#admin">管理后台</a><a href="#upload">上传</a>
+</nav>
+
+<!-- ===== Auth ===== -->
+<div class="section" id="auth">
+<div class="section-header">🔑 Auth 认证 <span class="badge">3</span></div>
+<div class="section-body">
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/auth/register</span><span class="api-desc">用户注册</span></div><span class="chevron">▶</span></div>
+<div class="detail">
+<div class="dt">请求体 JSON</div>
+<table class="p"><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>username</td><td>string</td><td class="req">是</td><td>2-50字符</td></tr>
+<tr><td>password</td><td>string</td><td class="req">是</td><td>6-50字符</td></tr>
+<tr><td>role</td><td>int</td><td class="req">是</td><td>0=求职者 1=企业</td></tr>
+<tr><td>phone</td><td>string</td><td class="opt">否</td><td>手机号</td></tr>
+</table>
+<div class="dt">请求示例</div>
+<pre class="cb">POST /api/auth/register
+Content-Type: application/json
+
+{"username":"张伟","password":"123456","role":0,"phone":"13800138000"}</pre>
+<div class="dt">响应示例</div>
+<pre class="cb">{"code":0,"message":"success","data":{"id":1,"username":"张伟","phone":"13800138000","avatar":"","role":0,"status":0,"created_at":"2026-01-01T00:00:00"}}</pre>
+</div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/auth/login</span><span class="api-desc">用户登录，返回 JWT token</span></div><span class="chevron">▶</span></div>
+<div class="detail">
+<div class="dt">请求体 JSON</div>
+<table class="p"><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>username</td><td>string</td><td class="req">是</td><td>用户名</td></tr>
+<tr><td>password</td><td>string</td><td class="req">是</td><td>密码</td></tr>
+</table>
+<div class="dt">响应示例</div>
+<pre class="cb">{"code":0,"message":"success","data":{"token":"eyJhbGci...","user":{"id":1,"username":"张伟","role":0,...}}}</pre>
+</div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/auth/me</span><span class="api-desc">获取当前登录用户信息</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail">
+<div class="dt">响应示例</div>
+<pre class="cb">{"code":0,"message":"success","data":{"id":1,"username":"张伟","phone":"138...","avatar":"","role":0,"status":0,"created_at":"..."}}</pre>
+</div></div>
+
+</div></div>
+
+<!-- ===== Seeker ===== -->
+<div class="section" id="seeker">
+<div class="section-header">👤 Seeker 求职者 <span class="badge">4</span></div>
+<div class="section-body">
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/seeker/profile</span><span class="api-desc">创建/更新求职档案</span><span class="auth-tag">🔒 求职者</span></div><span class="chevron">▶</span></div>
+<div class="detail">
+<div class="dt">请求体 JSON</div>
+<table class="p"><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>name</td><td>string</td><td class="req">是</td><td>姓名 1-50</td></tr>
+<tr><td>gender</td><td>int</td><td class="req">是</td><td>0=女 1=男</td></tr>
+<tr><td>age</td><td>int</td><td class="req">是</td><td>16-65</td></tr>
+<tr><td>education</td><td>string</td><td class="req">是</td><td>学历</td></tr>
+<tr><td>experience_years</td><td>string</td><td class="req">是</td><td>工作年限</td></tr>
+<tr><td>expected_salary</td><td>string</td><td class="req">是</td><td>期望薪资</td></tr>
+<tr><td>expected_city</td><td>string</td><td class="req">是</td><td>期望城市</td></tr>
+<tr><td>skills</td><td>string</td><td class="req">是</td><td>技能 1-500</td></tr>
+<tr><td>self_intro</td><td>string</td><td class="opt">否</td><td>自我介绍</td></tr>
+</table>
+</div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/seeker/profile</span><span class="api-desc">获取自己的求职档案</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">响应</div><pre class="cb">{"code":0,"data":{"id":1,"user_id":2,"name":"张伟","gender":1,"age":28,"education":"本科","skills":"Java,Spring,..."}}</pre></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/seeker/list</span><span class="api-desc">求职者列表（keyword/page/size）</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">Query 参数</div>
+<table class="p"><tr><th>参数</th><th>类型</th><th>说明</th></tr>
+<tr><td>keyword</td><td>string</td><td>搜索姓名/技能</td></tr>
+<tr><td>city</td><td>string</td><td>筛选城市</td></tr>
+<tr><td>page/size</td><td>int</td><td>分页</td></tr>
+</table></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/seeker/{id}</span><span class="api-desc">求职者详情</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">路径参数</div><table class="p"><tr><th>参数</th><th>说明</th></tr><tr><td>id</td><td>求职者档案ID</td></tr></table></div></div>
+
+</div></div>
+
+<!-- ===== Enterprise ===== -->
+<div class="section" id="enterprise">
+<div class="section-header">🏢 Enterprise 企业 <span class="badge">2</span></div>
+<div class="section-body">
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/enterprise/profile</span><span class="api-desc">提交/更新企业认证资料</span><span class="auth-tag">🔒 企业</span></div><span class="chevron">▶</span></div>
+<div class="detail">
+<div class="dt">请求体 JSON</div>
+<table class="p"><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>company_name</td><td>string</td><td class="req">是</td><td>公司名称 1-100</td></tr>
+<tr><td>license_no</td><td>string</td><td class="req">是</td><td>营业执照号 1-50</td></tr>
+<tr><td>license_image</td><td>string</td><td class="req">是</td><td>执照图片URL</td></tr>
+<tr><td>contact_person</td><td>string</td><td class="req">是</td><td>联系人 1-50</td></tr>
+<tr><td>contact_phone</td><td>string</td><td class="req">是</td><td>联系电话 1-20</td></tr>
+<tr><td>industry</td><td>string</td><td class="req">是</td><td>行业 1-50</td></tr>
+<tr><td>address</td><td>string</td><td class="req">是</td><td>地址 1-200</td></tr>
+</table>
+</div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/enterprise/profile</span><span class="api-desc">获取企业档案</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">响应</div><pre class="cb">{"code":0,"data":{"id":1,"company_name":"华创科技","verified":1,"industry":"互联网",...}}</pre></div></div>
+
+</div></div>
+
+<!-- ===== Jobs ===== -->
+<div class="section" id="jobs">
+<div class="section-header">💼 Jobs 招聘 <span class="badge">6</span></div>
+<div class="section-body">
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/enterprise/job</span><span class="api-desc">发布招聘（需企业认证通过）</span><span class="auth-tag">🔒 已认证企业</span></div><span class="chevron">▶</span></div>
+<div class="detail">
+<div class="dt">请求体 JSON</div>
+<table class="p"><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>title</td><td>string</td><td class="req">是</td><td>职位名称 1-100</td></tr>
+<tr><td>salary_range</td><td>string</td><td class="req">是</td><td>薪资范围，如"15K-25K"</td></tr>
+<tr><td>city</td><td>string</td><td class="req">是</td><td>工作城市</td></tr>
+<tr><td>education_req</td><td>string</td><td class="req">是</td><td>学历要求</td></tr>
+<tr><td>experience_req</td><td>string</td><td class="req">是</td><td>经验要求</td></tr>
+<tr><td>description</td><td>string</td><td class="opt">否</td><td>职位描述</td></tr>
+</table>
+<div class="dt">请求示例</div>
+<pre class="cb">POST /api/enterprise/job
+Authorization: Bearer eyJ...
+
+{"title":"Java高级工程师","salary_range":"20K-35K","city":"北京","education_req":"本科","experience_req":"3-5年","description":"负责核心系统开发..."}</pre>
+</div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method put">PUT</span><div class="api-info"><span class="api-path">/api/enterprise/job/{id}</span><span class="api-desc">编辑招聘（需企业认证通过）</span><span class="auth-tag">🔒 已认证企业</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">路径参数</div><table class="p"><tr><th>参数</th><th>说明</th></tr><tr><td>id</td><td>职位ID</td></tr></table>
+<div class="dt">请求体</div><p>同发布招聘</p></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method delete">DELETE</span><div class="api-info"><span class="api-path">/api/enterprise/job/{id}</span><span class="api-desc">删除招聘（需企业认证通过）</span><span class="auth-tag">🔒 已认证企业</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">路径参数</div><table class="p"><tr><th>参数</th><th>说明</th></tr><tr><td>id</td><td>职位ID</td></tr></table></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/enterprise/jobs</span><span class="api-desc">我的招聘列表</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">Query 参数</div><table class="p"><tr><th>参数</th><th>说明</th></tr><tr><td>page/size</td><td>分页</td></tr></table></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/jobs</span><span class="api-desc">公开招聘列表（keyword/city/page/size）</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">Query 参数</div>
+<table class="p"><tr><th>参数</th><th>类型</th><th>说明</th></tr>
+<tr><td>keyword</td><td>string</td><td>搜索职位名/城市</td></tr>
+<tr><td>city</td><td>string</td><td>筛选城市</td></tr>
+<tr><td>page/size</td><td>int</td><td>分页</td></tr>
+</table>
+<div class="dt">响应示例</div>
+<pre class="cb">{"code":0,"data":{"list":[{"id":1,"title":"Java高级工程师","salary_range":"20K-35K","city":"北京","company_name":"华创科技",...}],"total":8,"page":1,"size":10}}</pre>
+</div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/jobs/{id}</span><span class="api-desc">招聘详情（含企业联系方式）</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">响应</div><pre class="cb">{"code":0,"data":{"id":1,"title":"...","company_name":"华创科技","contact_person":"李总","contact_phone":"010-8888...","industry":"互联网","address":"北京市..."}}</pre></div></div>
+
+</div></div>
+
+<!-- ===== Chat ===== -->
+<div class="section" id="chat">
+<div class="section-header">💬 Chat 聊天 <span class="badge">6</span></div>
+<div class="section-body">
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/chat/contact</span><span class="api-desc">企业发起联系（每日限3人，可附招呼语）</span><span class="auth-tag">🔒 企业</span></div><span class="chevron">▶</span></div>
+<div class="detail">
+<div class="dt">请求体 JSON</div>
+<table class="p"><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>seeker_user_id</td><td>int</td><td class="req">是</td><td>求职者用户ID</td></tr>
+<tr><td>greeting</td><td>string</td><td class="opt">否</td><td>招呼语</td></tr>
+</table>
+<div class="dt">请求示例</div>
+<pre class="cb">{"seeker_user_id":2,"greeting":"您好，我们对您的Java经验很感兴趣"}</pre>
+<div class="dt">业务规则</div>
+<p>每个企业每天最多联系3名求职者（通过 SELECT FOR UPDATE 行锁保证并发安全）。超限返回 403。</p>
+</div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method put">PUT</span><div class="api-info"><span class="api-path">/api/chat/contact/{id}/reply</span><span class="api-desc">求职者回复（接受/拒绝）</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail"><table class="p"><tr><th>字段</th><th>类型</th><th>说明</th></tr><tr><td>accept</td><td>bool</td><td>true=接受 false=拒绝</td></tr></table></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/chat/contacts</span><span class="api-desc">我的联系列表</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">响应</div><pre class="cb">{"code":0,"data":[{"id":1,"status":1,"other_username":"张伟","greeting":"您好...","unread_count":2,...}]}</pre></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/chat/message</span><span class="api-desc">发送消息（求职者回复自动接受联系）</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail"><table class="p"><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>contact_id</td><td>int</td><td class="req">是</td><td>联系ID</td></tr>
+<tr><td>content</td><td>string</td><td class="req">是</td><td>消息内容</td></tr>
+</table>
+<div class="dt">业务规则</div><p>求职者首次发送消息时，若联系状态为"待回复"，自动变为"已接受"。</p>
+</div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/chat/messages/{contact_id}</span><span class="api-desc">获取聊天记录</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">Query 参数</div><table class="p"><tr><th>参数</th><th>说明</th></tr><tr><td>page/size</td><td>分页</td></tr></table></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method put">PUT</span><div class="api-info"><span class="api-path">/api/chat/messages/{contact_id}/read</span><span class="api-desc">标记已读</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail"><p>将指定联系的所有未读消息标记为已读。</p></div></div>
+
+</div></div>
+
+<!-- ===== Jianghu ===== -->
+<div class="section" id="jianghu">
+<div class="section-header">🌍 Jianghu 江湖说 <span class="badge">6</span></div>
+<div class="section-body">
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/jianghu/post</span><span class="api-desc">发布动态（所有人可发布，含匿名）</span></div><span class="chevron">▶</span></div>
+<div class="detail">
+<div class="dt">认证</div><p>可选。登录用户关联身份，未登录以匿名身份发布。</p>
+<div class="dt">请求体 JSON</div>
+<table class="p"><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>content</td><td>string</td><td class="req">是</td><td>动态内容，不能为空</td></tr>
+<tr><td>images</td><td>string[]</td><td class="opt">否</td><td>图片URL数组（需先调用上传接口）</td></tr>
+</table>
+<div class="dt">请求示例</div>
+<pre class="cb">POST /api/jianghu/post
+Content-Type: application/json
+
+{"content":"今天面试了一家互联网公司，感觉不错！","images":["/uploads/20260226_abc.png"]}</pre>
+<div class="dt">响应示例</div>
+<pre class="cb">{"code":0,"data":{"id":7,"user_id":null,"content":"今天面试了...","images":"","like_count":0,"comment_count":0,"created_at":"..."}}</pre>
+</div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/jianghu/posts</span><span class="api-desc">动态列表（无需登录，登录后显示点赞状态）</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">Query 参数</div><table class="p"><tr><th>参数</th><th>说明</th></tr><tr><td>page/size</td><td>分页</td></tr></table>
+<div class="dt">响应字段</div>
+<table class="p"><tr><th>字段</th><th>说明</th></tr>
+<tr><td>username</td><td>发布者用户名，匿名发布显示"匿名用户"</td></tr>
+<tr><td>liked</td><td>当前用户是否已点赞（未登录始终false）</td></tr>
+</table></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/jianghu/post/{id}/like</span><span class="api-desc">点赞/取消点赞</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">响应</div><pre class="cb">{"code":0,"data":true}  // true=已点赞, false=已取消</pre></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/jianghu/post/{id}/comment</span><span class="api-desc">发表评论</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail"><table class="p"><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>content</td><td>string</td><td class="req">是</td><td>评论内容</td></tr></table></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/jianghu/post/{id}/comments</span><span class="api-desc">评论列表</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">响应</div><pre class="cb">{"code":0,"data":[{"id":1,"user_id":2,"content":"说得好！","username":"张伟","avatar":"","created_at":"..."}]}</pre></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method delete">DELETE</span><div class="api-info"><span class="api-path">/api/jianghu/post/{id}</span><span class="api-desc">删除动态（本人或管理员）</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail"><p>仅动态发布者本人或管理员可删除。匿名动态仅管理员可删除。</p></div></div>
+
+</div></div>
+
+<!-- ===== Market ===== -->
+<div class="section" id="market">
+<div class="section-header">🛒 Market 好市场 <span class="badge">5</span></div>
+<div class="section-body">
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/market/post</span><span class="api-desc">发布商品（仅企业用户）</span><span class="auth-tag">🔒 企业</span></div><span class="chevron">▶</span></div>
+<div class="detail">
+<div class="dt">请求体 JSON</div>
+<table class="p"><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+<tr><td>title</td><td>string</td><td class="req">是</td><td>标题 1-100</td></tr>
+<tr><td>category</td><td>int</td><td class="req">是</td><td>0=门店转让 1=二手物品 2=其他</td></tr>
+<tr><td>price</td><td>decimal</td><td class="req">是</td><td>价格（≥0，≤1亿）</td></tr>
+<tr><td>city</td><td>string</td><td class="req">是</td><td>城市 1-50</td></tr>
+<tr><td>images</td><td>string[]</td><td class="opt">否</td><td>图片URL数组</td></tr>
+<tr><td>description</td><td>string</td><td class="opt">否</td><td>描述</td></tr>
+<tr><td>contact_info</td><td>string</td><td class="req">是</td><td>联系方式 1-100</td></tr>
+</table>
+</div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/market/posts</span><span class="api-desc">商品列表（keyword/category/page/size）</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">Query 参数</div><table class="p"><tr><th>参数</th><th>说明</th></tr>
+<tr><td>keyword</td><td>搜索标题</td></tr><tr><td>category</td><td>分类筛选 0/1/2</td></tr><tr><td>page/size</td><td>分页</td></tr></table></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/market/post/{id}</span><span class="api-desc">商品详情</span></div><span class="chevron">▶</span></div>
+<div class="detail"><div class="dt">响应</div><pre class="cb">{"code":0,"data":{"id":1,"title":"旺铺转让","category":0,"price":"50000","city":"深圳","contact_info":"138...","username":"鼎盛餐饮",...}}</pre></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method put">PUT</span><div class="api-info"><span class="api-path">/api/market/post/{id}</span><span class="api-desc">编辑商品</span><span class="auth-tag">🔒 企业</span></div><span class="chevron">▶</span></div>
+<div class="detail"><p>请求体同发布商品。仅商品发布者可编辑。</p></div></div>
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method delete">DELETE</span><div class="api-info"><span class="api-path">/api/market/post/{id}</span><span class="api-desc">删除商品（本人或管理员）</span><span class="auth-tag">🔒 企业/管理员</span></div><span class="chevron">▶</span></div>
+<div class="detail"><p>仅商品发布者或管理员可删除。</p></div></div>
+
+</div></div>
+
+<!-- ===== Admin ===== -->
+<div class="section" id="admin">
+<div class="section-header">⚙️ Admin 管理后台 <span class="badge">12</span></div>
+<div class="section-body">
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/admin/stats</span><span class="api-desc">数据统计概览</span><span class="auth-tag">🔒 管理员</span></div><span class="chevron">▶</span></div>
+<div class="detail"><pre class="cb">{"code":0,"data":{"total_users":10,"total_seekers":6,"total_enterprises":3,"total_jobs":8,"total_jianghu":6,"total_market":5,"pending_verify":0}}</pre></div></div>
+
+<div class="api-item"><div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/admin/users</span><span class="api-desc">用户列表</span><span class="auth-tag">🔒 管理员</span></div></div></div>
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method put">PUT</span><div class="api-info"><span class="api-path">/api/admin/user/{id}/status</span><span class="api-desc">禁用/启用用户</span><span class="auth-tag">🔒 管理员</span></div><span class="chevron">▶</span></div>
+<div class="detail"><table class="p"><tr><th>字段</th><th>说明</th></tr><tr><td>status</td><td>0=正常 1=禁用</td></tr></table></div></div>
+
+<div class="api-item"><div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/admin/enterprises</span><span class="api-desc">企业认证审核列表</span><span class="auth-tag">🔒 管理员</span></div></div></div>
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method put">PUT</span><div class="api-info"><span class="api-path">/api/admin/enterprise/{id}/verify</span><span class="api-desc">审核企业</span><span class="auth-tag">🔒 管理员</span></div><span class="chevron">▶</span></div>
+<div class="detail"><table class="p"><tr><th>字段</th><th>说明</th></tr><tr><td>verified</td><td>1=通过 2=拒绝</td></tr></table></div></div>
+
+<div class="api-item"><div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/admin/logs</span><span class="api-desc">操作日志</span><span class="auth-tag">🔒 管理员</span></div></div></div>
+<div class="api-item"><div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/admin/market</span><span class="api-desc">市场商品管理列表</span><span class="auth-tag">🔒 管理员</span></div></div></div>
+<div class="api-item"><div class="api-row"><span class="method delete">DELETE</span><div class="api-info"><span class="api-path">/api/admin/market/{id}</span><span class="api-desc">删除市场商品</span><span class="auth-tag">🔒 管理员</span></div></div></div>
+<div class="api-item"><div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/admin/jianghu</span><span class="api-desc">江湖说管理列表</span><span class="auth-tag">🔒 管理员</span></div></div></div>
+<div class="api-item"><div class="api-row"><span class="method delete">DELETE</span><div class="api-info"><span class="api-path">/api/admin/jianghu/{id}</span><span class="api-desc">删除江湖说动态</span><span class="auth-tag">🔒 管理员</span></div></div></div>
+<div class="api-item"><div class="api-row"><span class="method get">GET</span><div class="api-info"><span class="api-path">/api/admin/jobs</span><span class="api-desc">招聘管理列表</span><span class="auth-tag">🔒 管理员</span></div></div></div>
+<div class="api-item"><div class="api-row"><span class="method delete">DELETE</span><div class="api-info"><span class="api-path">/api/admin/job/{id}</span><span class="api-desc">删除招聘</span><span class="auth-tag">🔒 管理员</span></div></div></div>
+
+</div></div>
+
+<!-- ===== Upload ===== -->
+<div class="section" id="upload">
+<div class="section-header">📎 Upload 文件上传 <span class="badge">1</span></div>
+<div class="section-body">
+
+<div class="api-item" onclick="this.classList.toggle('open')">
+<div class="api-row"><span class="method post">POST</span><div class="api-info"><span class="api-path">/api/upload</span><span class="api-desc">上传图片（multipart/form-data）</span><span class="auth-tag">🔒 登录</span></div><span class="chevron">▶</span></div>
+<div class="detail">
+<div class="dt">请求格式</div><p>multipart/form-data，字段名 file</p>
+<div class="dt">限制</div>
+<table class="p"><tr><th>项目</th><th>说明</th></tr>
+<tr><td>大小</td><td>单文件最大 5MB</td></tr>
+<tr><td>格式</td><td>jpg/jpeg/png/gif/webp/bmp/tiff（扩展名+魔数双重校验）</td></tr>
+</table>
+<div class="dt">响应示例</div>
+<pre class="cb">{"code":0,"data":["/uploads/20260226072805_2cc63aeb.png"]}</pre>
+</div></div>
+
+</div></div>
+
+</div>
+</body>
+</html>

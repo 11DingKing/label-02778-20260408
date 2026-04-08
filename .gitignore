@@ -1,0 +1,36 @@
+# Rust
+backend/target/
+backend/Cargo.lock
+
+# Node
+frontend-user/node_modules/
+frontend-user/dist/
+frontend-user/.vite/
+
+frontend-admin/node_modules/
+frontend-admin/dist/
+frontend-admin/.vite/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env.local
+.env.*.local
+
+# Docker
+mysql_data/
+
+# Logs
+*.log
+
+# Uploads
+backend/uploads/
