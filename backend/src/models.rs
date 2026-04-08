@@ -65,6 +65,17 @@ pub struct LoginResp {
     pub user: UserVO,
 }
 
+#[derive(Debug, Deserialize, Validate)]
+pub struct RefreshTokenReq {
+    #[validate(length(min = 1, message = "token不能为空"))]
+    pub token: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RefreshTokenResp {
+    pub token: String,
+}
+
 // ========== JobSeekerProfile ==========
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct JobSeekerProfile {

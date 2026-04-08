@@ -69,9 +69,15 @@ async fn main() -> std::io::Result<()> {
 
     log::info!("Database connected successfully");
 
+    use dashmap::DashMap;
+    use std::sync::Arc;
+
+    let rate_limiter: talent_backend::RateLimiterStore = Arc::new(DashMap::new());
+
     let app_state = web::Data::new(AppState {
         db: pool,
         jwt_secret,
+        rate_limiter,
     });
 
     log::info!("Starting server at {}:{}", host, port);

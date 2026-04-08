@@ -60,3 +60,50 @@ pub async fn login(db: &MySqlPool, jwt_secret: &str, req: LoginReq) -> Result<Lo
     log::info!("Login successful: user_id={}, username={}", user.id, user.username);
     Ok(LoginResp { token, user: user.into() })
 }
+
+pub async fn refresh_token(db: &MySqlPool, jwt_secret: &str, old_token: &str) -> Result<String, AppError> {
+    use jsonwebtoken::{decode, DecodingKey, Validation, Algorithm};
+
+    log::info!("Refresh token attempt");
+
+    let mut validation = Validation::new(Algorithm::HS256);
+    validation.validate_exp = false;
+
+    let token_data = decode::<Claims>(
+        old_token,
+        &DecodingKey::from_secret(jwt_secret.as_bytes()),
+        &validation,
+    )?;
+
+    let claims = token_data.claims;
+    let now = Utc::now().timestamp() as usize;
+
+    const REFRESH_GRACE_PERIOD_SECONDS: usize = 7 * 24 * 60 * 60;
+    if claims.exp + REFRESH_GRACE_PERIOD_SECONDS < now {
+        log::warn!("Refresh token rejected: token expired beyond grace period");
+        return Err(AppError::Unauthorized("token已过期，请重新登录".into()));
+    }
+
+    let user: User = sqlx::query_as("SELECT * FROM users WHERE id = ?")
+        .bind(claims.sub).fetch_optional(db).await?
+        .ok_or_else(|| {
+            log::warn!("Refresh token rejected: user_id={} not found", claims.sub);
+            AppError::Unauthorized("用户不存在".into())
+        })?;
+
+    if user.status == 1 {
+        log::warn!("Refresh token rejected: user_id={} is disabled", claims.sub);
+        return Err(AppError::Forbidden("账号已被禁用".into()));
+    }
+
+    let exp = (Utc::now() + chrono::Duration::hours(JWT_EXPIRATION_HOURS)).timestamp() as usize;
+    let new_claims = Claims {
+        sub: user.id,
+        role: user.role,
+        username: user.username.clone(),
+        exp,
+    };
+    let new_token = encode(&Header::default(), &new_claims, &EncodingKey::from_secret(jwt_secret.as_bytes()))?;
+    log::info!("Refresh token successful: user_id={}, username={}", user.id, user.username);
+    Ok(new_token)
+}

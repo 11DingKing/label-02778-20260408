@@ -17,3 +17,12 @@ pub const JWT_EXPIRATION_HOURS: i64 = 72;
 /// 分页默认值
 pub const DEFAULT_PAGE_SIZE: u32 = 20;
 pub const MAX_PAGE_SIZE: u32 = 100;
+
+/// Rate Limiter 配置：每分钟最大请求数
+pub const RATE_LIMIT_MAX_REQUESTS_PER_MINUTE: u32 = 60;
+
+/// Rate Limiter 配置：令牌桶容量（与每分钟最大请求数相同）
+pub const RATE_LIMIT_BUCKET_CAPACITY: u32 = RATE_LIMIT_MAX_REQUESTS_PER_MINUTE;
+
+/// Rate Limiter 配置：令牌补充速率（每秒补充的令牌数）
+pub const RATE_LIMIT_REFILL_RATE_PER_SECOND: f64 = RATE_LIMIT_MAX_REQUESTS_PER_MINUTE as f64 / 60.0;

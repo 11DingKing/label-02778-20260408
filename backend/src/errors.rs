@@ -8,6 +8,7 @@ pub enum AppError {
     Forbidden(String),
     NotFound(String),
     Conflict(String),
+    TooManyRequests(String),
     Internal(String),
 }
 
@@ -19,6 +20,7 @@ impl fmt::Display for AppError {
             AppError::Forbidden(msg) => write!(f, "{}", msg),
             AppError::NotFound(msg) => write!(f, "{}", msg),
             AppError::Conflict(msg) => write!(f, "{}", msg),
+            AppError::TooManyRequests(msg) => write!(f, "{}", msg),
             AppError::Internal(msg) => write!(f, "{}", msg),
         }
     }
@@ -32,6 +34,7 @@ impl ResponseError for AppError {
             AppError::Forbidden(msg) => (403, msg.clone()),
             AppError::NotFound(msg) => (404, msg.clone()),
             AppError::Conflict(msg) => (409, msg.clone()),
+            AppError::TooManyRequests(msg) => (429, msg.clone()),
             AppError::Internal(msg) => {
                 log::error!("Internal error: {}", msg);
                 (500, "服务器内部错误".to_string())

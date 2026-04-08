@@ -17,6 +17,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 .route("/register", web::post().to(auth::register))
                 .route("/login", web::post().to(auth::login))
                 .route("/me", web::get().to(auth::me))
+                .route("/refresh", web::post().to(auth::refresh))
             )
             .service(web::scope("/seeker")
                 .route("/profile", web::post().to(seeker::upsert_seeker_profile))
