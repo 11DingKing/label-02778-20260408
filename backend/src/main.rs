@@ -104,6 +104,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(Logger::default())
             .wrap(cors)
+            .wrap(talent_backend::middleware::RateLimitMiddleware)
             .app_data(app_state.clone())
             .app_data(web::JsonConfig::default().error_handler(|err, _req| {
                 let detail = err.to_string();
